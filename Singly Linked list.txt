@@ -1,0 +1,284 @@
+#include <iostream>
+#include <stack>
+using namespace std;
+
+
+class SNode
+{
+private:
+	int data;
+	SNode* link;
+public:
+	SNode();
+	SNode(int);
+
+	void setData(int);
+	void setLink(SNode*);
+
+	int getData();
+	SNode* getLink();
+};
+SNode::SNode()
+{
+	data = 0;
+	link = NULL;
+}
+SNode::SNode(int d)
+{
+	data = d;
+	link = NULL;
+}
+void SNode::setData(int d)
+{
+	data = d;
+}
+void SNode::setLink(SNode* l)
+{
+	link = l;
+}
+int SNode::getData()
+{
+	return data;
+}
+SNode* SNode::getLink()
+{
+	return link;
+}
+
+//-----------------------------------------------------
+
+class SList
+{
+private:
+	SNode* first;
+	int rRevPrint(SNode* temp);
+	SNode* rRevList(SNode* temp);
+
+public:
+	SList();
+	SList(SNode*);
+
+	void insert(SNode*, SNode*);
+	void Delete(SNode*);
+	void print();
+	void insertBetween(SNode*, SNode*, SNode*);
+
+	void RevPrint();
+	void ReversePrint();
+
+	void ReverseList();
+	void RevList();
+};
+SList::SList()
+{
+	first = 0;
+}
+SList::SList(SNode* f)
+{
+	first = f;
+}
+void SList::insert(SNode* pBefore, SNode* pNew)
+{
+	//No first exist, Pnew becomes first
+	if (!first)
+	{
+		first = pNew;
+	}
+	//First exists, there is no pbefore
+	//user wants to make a new first
+	else if (!pBefore && first)
+	{
+		pNew->setLink(first);
+		first = pNew;
+	}
+	//Adding a node in between two nodes
+	else
+	{
+		pNew->setLink(pBefore->getLink());
+		pBefore->setLink(pNew);
+	}
+}
+void SList::insertBetween(SNode* pBefore, SNode* pNew, SNode* pAfter)
+{
+	if (!first && !pBefore && !pAfter)
+		first = pNew;
+	else if (first && !pBefore && pAfter == first)
+	{
+		pNew->setLink(pAfter);
+		first = pNew;
+	}
+	else if (first && pBefore && pAfter && pBefore->getLink() == pAfter)
+	{
+		pNew->setLink(pAfter);
+		pBefore->setLink(pNew);
+	}
+	else
+		cout << " Invalid entries." << endl;
+}
+void SList::Delete(SNode* pDelete)
+{
+	cout << "\n .....................\n";
+	cout << " Delete function called..." << endl;
+	SNode* temp;
+	temp = first;
+
+	if (pDelete == first)
+		first = first->getLink();
+	else
+	{
+		while (temp->getLink() != pDelete)
+			temp = temp->getLink();
+
+		temp->setLink(pDelete->getLink());
+	}
+
+	delete pDelete;
+}
+void SList::print()
+{
+	cout << " Printing list" << endl;
+	cout << "\n";
+	SNode* temp;
+	temp = first;
+
+	int i = 0;
+
+	while (temp)
+	{
+		cout << " Value of Node " << i + 1 << " : " << temp->getData() << endl;
+		temp = temp->getLink();
+		i++;
+	}
+}
+void SList::RevPrint()
+{
+	cout << "\n\n Printing reverse list recursively..." << endl;
+	cout << "\n";
+
+	int d;
+	d = rRevPrint(first);
+	cout << " " << d << endl;
+}
+int SList::rRevPrint(SNode* temp)
+{
+	if (!temp->getLink())
+		return temp->getData();
+
+	int d = rRevPrint(temp->getLink());
+	cout << " " << d << "  ->";
+
+	return temp->getData();
+}
+void SList::ReversePrint()
+{
+	stack<int> s;
+	SNode* temp = first;
+
+	while (temp)
+	{
+		s.push(temp->getData());
+		temp = temp->getLink();
+	}
+
+	cout << "\n\n Printing reverse list iteratively..." << endl;
+	cout << "\n";
+	while (!s.empty()) // (s.size())
+	{
+		cout << " " << s.top();
+		if (s.size() != 1)
+			cout << " -> ";
+		s.pop();
+	}
+	cout << "\n";
+}
+void SList::ReverseList()
+{
+	SNode* before, * curr, * after;
+	before = NULL;
+	after = NULL;
+	curr = first;
+
+	while (curr)
+	{
+		after = curr->getLink();
+		curr->setLink(before);
+		before = curr;
+		curr = after;
+	}
+
+	first = before;
+}
+void SList::RevList()
+{
+	SNode* l;
+	l = rRevList(first);
+	l->setLink(NULL);
+}
+SNode* SList::rRevList(SNode* temp)
+{
+	if (temp->getLink() == NULL)
+	{
+		first = temp;
+		return temp;
+	}
+
+	SNode* l = rRevList(temp->getLink());
+	l->setLink(temp);
+
+	return temp;
+}
+//----------------------------------------------------
+
+int main()
+{
+	SNode* a, * b, * c, * d, * e;
+
+	a = new SNode(1);
+	b = new SNode(2);
+	c = new SNode(3);
+	d = new SNode(4);
+	e = new SNode(5);
+
+	SList* list;
+	list = new SList();
+
+	list->insert(0, a);
+	list->insert(a, b);
+	list->insert(b, c);
+	list->insert(a, d);
+	list->insert(b, e);
+
+	list->print();
+
+	list->Delete(a);
+
+	cout << "\n After deleting first node" << endl;
+	list->print();
+
+
+	SNode* f, * g;
+	f = new SNode(9);
+	g = new SNode(10);
+
+	list->insertBetween(0, f, d);
+	list->insertBetween(b, g, e);
+
+	cout << "\n After insertBetween function" << endl;
+	list->print();
+
+	// Printing reverse list recursively
+	list->RevPrint();
+	list->ReversePrint();
+
+	list->ReverseList();
+	cout << "\n After reversing list iteratively" << endl;
+	list->print();
+
+	list->RevList();
+	cout << "\n After reversing list recursively" << endl;
+	list->print();
+
+
+	system("pause");
+	return 0;
+}
